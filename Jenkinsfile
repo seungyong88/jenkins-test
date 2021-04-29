@@ -21,9 +21,9 @@ pipeline {
             steps {
                 echo 'Clonning Repository'
 
-                git url: 'https://github.com/seungyong88/jenkins',
+                git url: 'https://github.com/seungyong88/jenkins-test',
                     branch: 'master',
-                    credentialsId: 'jenkins'
+                    credentialsId: 'gittest'
             }
 
             post {
@@ -140,7 +140,6 @@ pipeline {
 
           dir ('./server'){
               sh '''
-              docker rm -f $(docker ps -aq)
               docker run -p 80:80 -d server
               '''
           }

@@ -1,0 +1,3 @@
+docker rm -f $(docker ps -aq)
+
+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
