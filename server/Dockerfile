@@ -7,7 +7,7 @@ COPY . /
 
 # update apt packages
 ARG env
-ENV APP_ENV=$env 
+# ENV APP_ENV=$env 
 RUN npm install
 RUN npm run build
 
