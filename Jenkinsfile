@@ -49,15 +49,7 @@ pipeline {
             }
         }
 
-        stage('Code Analysis') {
-          steps {
-            withSonarQubeEnv('sonarqube') {
-              sh '''
-                ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
-                '''
-            }
-          }
-        }
+      
         
         // aws s3 에 파일을 올림
         stage('Deploy Frontend') {
