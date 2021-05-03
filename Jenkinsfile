@@ -15,6 +15,10 @@ pipeline {
     //   HOME = '.' // Avoid npm root owned
     // }
 
+    environment {
+      scannerhome = tool 'Sonar-Scanner'
+    }
+
     stages {
         // 레포지토리를 다운로드 받음
         stage('Prepare') {
@@ -45,16 +49,13 @@ pipeline {
             }
         }
 
-        stage('Code Analysis')
-          {
-            def scannerhome = tool 'Sonar-Scanner'
-            withSonarQubeEnv('sonarqube') {
-              sh '''
-                ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
-                '''
-            }
+        stage('Code Analysis') {
+          withSonarQubeEnv('sonarqube') {
+            sh '''
+              ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
+              '''
           }
-
+        }
         
         // aws s3 에 파일을 올림
         stage('Deploy Frontend') {
