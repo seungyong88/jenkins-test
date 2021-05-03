@@ -4,46 +4,63 @@ pipeline {
     // 스테이지 별로 다른 거
     agent any
 
-    triggers {
-        pollSCM('*/3 * * * *')
-    }
+    // triggers {
+    //     pollSCM('*/3 * * * *')
+    // }
 
-    environment {
-      AWS_ACCESS_KEY_ID = credentials('awsAccessKeyId')
-      AWS_SECRET_ACCESS_KEY = credentials('awsSecretAccessKey')
-      AWS_DEFAULT_REGION = 'ap-northeast-2'
-      HOME = '.' // Avoid npm root owned
-    }
+    // environment {
+    //   AWS_ACCESS_KEY_ID = credentials('awsAccessKeyId')
+    //   AWS_SECRET_ACCESS_KEY = credentials('awsSecretAccessKey')
+    //   AWS_DEFAULT_REGION = 'ap-northeast-2'
+    //   HOME = '.' // Avoid npm root owned
+    // }
 
     stages {
         // 레포지토리를 다운로드 받음
-        stage('Prepare') {
-            agent any
+        // stage('Prepare') {
+        //     agent any
             
-            steps {
-                echo 'Clonning Repository'
+        //     steps {
+        //         echo 'Clonning Repository'
 
-                git url: 'https://github.com/seungyong88/jenkins-test',
-                    branch: 'main',
-                    credentialsId: 'jenkins'
-            }
+        //         git url: 'https://github.com/seungyong88/jenkins-test',
+        //             branch: 'main',
+        //             credentialsId: 'jenkins'
+        //     }
 
-            post {
-                // If Maven was able to run the tests, even if some of the test
-                // failed, record the test results and archive the jar file.
-                success {
-                    echo 'Successfully Cloned Repository'
-                }
+        //     post {
+        //         // If Maven was able to run the tests, even if some of the test
+        //         // failed, record the test results and archive the jar file.
+        //         success {
+        //             echo 'Successfully Cloned Repository'
+        //         }
 
-                always {
-                  echo "i tried..."
-                }
+        //         always {
+        //           echo "i tried..."
+        //         }
 
-                cleanup {
-                  echo "after all other post condition"
-                }
-            }
+        //         cleanup {
+        //           echo "after all other post condition"
+        //         }
+        //     }
+        // }
+
+        stage('checkout SCM')
+        {
+            checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/seungyong88/jenkins-test.git']]])
         }
+
+
+        stage('Code Analysis')
+          {
+            def scannerhome = tool 'Sonar-Scanner'
+            withSonarQubeEnv('sonarqube') {
+              sh '''
+                ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
+                '''
+            }
+          }
+
         
         // aws s3 에 파일을 올림
         stage('Deploy Frontend') {
