@@ -50,10 +50,12 @@ pipeline {
         }
 
         stage('Code Analysis') {
-          withSonarQubeEnv('sonarqube') {
-            sh '''
-              ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
-              '''
+          steps {
+            withSonarQubeEnv('sonarqube') {
+              sh '''
+                ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
+                '''
+            }
           }
         }
         
