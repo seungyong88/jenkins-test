@@ -15,7 +15,7 @@ pipeline {
     //   HOME = '.' // Avoid npm root owned
     // }
 
-    stages {
+    node {
         // 레포지토리를 다운로드 받음
         // stage('Prepare') {
         //     agent any
@@ -45,33 +45,29 @@ pipeline {
         //     }
         // }
 
-        stage('checkout SCM')
-        {
+        stage('checkout SCM') {
             checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/seungyong88/jenkins-test.git']]])
         }
 
-
-        stage('Code Analysis')
-          {
-            def scannerhome = tool 'Sonar-Scanner'
-            withSonarQubeEnv('sonarqube') {
-              sh '''
-                ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
-                '''
-            }
+        stage('Code Analysis') {
+          def scannerhome = tool 'Sonar-Scanner'
+          withSonarQubeEnv('sonarqube') {
+            sh '''
+              ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
+              '''
           }
+        }
 
-        
         // aws s3 에 파일을 올림
         stage('Deploy Frontend') {
           steps {
             echo 'Deploying Frontend'
             // 프론트엔드 디렉토리의 정적파일들을 S3 에 올림, 이 전에 반드시 EC2 instance profile 을 등록해야함.
-            dir ('./website'){
-                sh '''
-                aws s3 sync ./ s3://seungyongtest
-                '''
-            }
+            // dir ('./website'){
+            //     sh '''
+            //     aws s3 sync ./ s3://seungyongtest
+            //     '''
+            // }
           }
 
           post {
