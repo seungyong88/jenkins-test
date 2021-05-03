@@ -17,57 +17,55 @@ pipeline {
 
     stages {
         // 레포지토리를 다운로드 받음
-        // stage('Prepare') {
-        //     agent any
+        stage('Prepare') {
+            agent any
             
-        //     steps {
-        //         echo 'Clonning Repository'
+            steps {
+                echo 'Clonning Repository'
 
-        //         git url: 'https://github.com/seungyong88/jenkins-test',
-        //             branch: 'main',
-        //             credentialsId: 'jenkins'
-        //     }
+                git url: 'https://github.com/seungyong88/jenkins-test',
+                    branch: 'main',
+                    credentialsId: 'jenkins'
+            }
 
-        //     post {
-        //         // If Maven was able to run the tests, even if some of the test
-        //         // failed, record the test results and archive the jar file.
-        //         success {
-        //             echo 'Successfully Cloned Repository'
-        //         }
+            post {
+                // If Maven was able to run the tests, even if some of the test
+                // failed, record the test results and archive the jar file.
+                success {
+                    echo 'Successfully Cloned Repository'
+                }
 
-        //         always {
-        //           echo "i tried..."
-        //         }
+                always {
+                  echo "i tried..."
+                }
 
-        //         cleanup {
-        //           echo "after all other post condition"
-        //         }
-        //     }
-        // }
-
-        stage('checkout SCM') {
-            checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/seungyong88/jenkins-test.git']]])
+                cleanup {
+                  echo "after all other post condition"
+                }
+            }
         }
 
-        stage('Code Analysis') {
-          def scannerhome = tool 'Sonar-Scanner'
-          withSonarQubeEnv('sonarqube') {
-            sh '''
-              ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
-              '''
+        stage('Code Analysis')
+          {
+            def scannerhome = tool 'Sonar-Scanner'
+            withSonarQubeEnv('sonarqube') {
+              sh '''
+                ${scannerhome}/bin/sonar-scanner -Dsonar.login=admin -Dsonar.password=1234 -Dsonar.projectKey=jenkins-test
+                '''
+            }
           }
-        }
 
+        
         // aws s3 에 파일을 올림
         stage('Deploy Frontend') {
           steps {
             echo 'Deploying Frontend'
             // 프론트엔드 디렉토리의 정적파일들을 S3 에 올림, 이 전에 반드시 EC2 instance profile 을 등록해야함.
-            // dir ('./website'){
-            //     sh '''
-            //     aws s3 sync ./ s3://seungyongtest
-            //     '''
-            // }
+            dir ('./website'){
+                sh '''
+                aws s3 sync ./ s3://seungyongtest
+                '''
+            }
           }
 
           post {
@@ -93,38 +91,38 @@ pipeline {
         
         stage('Lint Backend') {
             // Docker plugin and Docker Pipeline 두개를 깔아야 사용가능!
-            // agent {
-            //   docker {
-            //     image 'node:latest'
-            //   }
-            // }
+            agent {
+              docker {
+                image 'node:latest'
+              }
+            }
             
-            // steps {
-            //   dir ('./server'){
-            //       sh '''
-            //       npm install&&
-            //       npm run lint
-            //       '''
-            //   }
-            // }
+            steps {
+              dir ('./server'){
+                  sh '''
+                  npm install&&
+                  npm run lint
+                  '''
+              }
+            }
         }
         
         stage('Test Backend') {
-          // agent {
-          //   docker {
-          //     image 'node:latest'
-          //   }
-          // }
-          // steps {
-          //   echo 'Test Backend'
+          agent {
+            docker {
+              image 'node:latest'
+            }
+          }
+          steps {
+            echo 'Test Backend'
 
-          //   dir ('./server'){
-          //       sh '''
-          //       npm install
-          //       npm run test
-          //       '''
-          //   }
-          // }
+            dir ('./server'){
+                sh '''
+                npm install
+                npm run test
+                '''
+            }
+          }
         }
 
       stage('Bulid Backend') {
@@ -133,11 +131,11 @@ pipeline {
         steps {
           echo 'Build Backend'
 
-          // dir ('./server'){
-          //     sh '''
-          //     docker build . -t server
-          //     '''
-          // }
+          dir ('./server'){
+              sh '''
+              docker build . -t server
+              '''
+          }
         }
 
         post {
@@ -151,13 +149,13 @@ pipeline {
         agent any
 
         steps {
-          // echo 'Build Backend'
+          echo 'Build Backend'
 
-          // dir ('./server'){
-          //     sh '''
-          //     docker run -p 80:80 -d server
-          //     '''
-          // }
+          dir ('./server'){
+              sh '''
+              docker run -p 80:80 -d server
+              '''
+          }
         }
 
         post {
