@@ -15,7 +15,7 @@ pipeline {
     //   HOME = '.' // Avoid npm root owned
     // }
 
-    node {
+    stages {
         // 레포지토리를 다운로드 받음
         // stage('Prepare') {
         //     agent any
@@ -93,38 +93,38 @@ pipeline {
         
         stage('Lint Backend') {
             // Docker plugin and Docker Pipeline 두개를 깔아야 사용가능!
-            agent {
-              docker {
-                image 'node:latest'
-              }
-            }
+            // agent {
+            //   docker {
+            //     image 'node:latest'
+            //   }
+            // }
             
-            steps {
-              dir ('./server'){
-                  sh '''
-                  npm install&&
-                  npm run lint
-                  '''
-              }
-            }
+            // steps {
+            //   dir ('./server'){
+            //       sh '''
+            //       npm install&&
+            //       npm run lint
+            //       '''
+            //   }
+            // }
         }
         
         stage('Test Backend') {
-          agent {
-            docker {
-              image 'node:latest'
-            }
-          }
-          steps {
-            echo 'Test Backend'
+          // agent {
+          //   docker {
+          //     image 'node:latest'
+          //   }
+          // }
+          // steps {
+          //   echo 'Test Backend'
 
-            dir ('./server'){
-                sh '''
-                npm install
-                npm run test
-                '''
-            }
-          }
+          //   dir ('./server'){
+          //       sh '''
+          //       npm install
+          //       npm run test
+          //       '''
+          //   }
+          // }
         }
 
       stage('Bulid Backend') {
@@ -133,11 +133,11 @@ pipeline {
         steps {
           echo 'Build Backend'
 
-          dir ('./server'){
-              sh '''
-              docker build . -t server
-              '''
-          }
+          // dir ('./server'){
+          //     sh '''
+          //     docker build . -t server
+          //     '''
+          // }
         }
 
         post {
@@ -151,13 +151,13 @@ pipeline {
         agent any
 
         steps {
-          echo 'Build Backend'
+          // echo 'Build Backend'
 
-          dir ('./server'){
-              sh '''
-              docker run -p 80:80 -d server
-              '''
-          }
+          // dir ('./server'){
+          //     sh '''
+          //     docker run -p 80:80 -d server
+          //     '''
+          // }
         }
 
         post {
