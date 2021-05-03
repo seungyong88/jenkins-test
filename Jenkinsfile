@@ -4,19 +4,15 @@ pipeline {
     // 스테이지 별로 다른 거
     agent any
 
-    // triggers {
-    //     pollSCM('*/3 * * * *')
-    // }
-
-    // environment {
-    //   AWS_ACCESS_KEY_ID = credentials('awsAccessKeyId')
-    //   AWS_SECRET_ACCESS_KEY = credentials('awsSecretAccessKey')
-    //   AWS_DEFAULT_REGION = 'ap-northeast-2'
-    //   HOME = '.' // Avoid npm root owned
-    // }
+    triggers {
+        pollSCM('*/3 * * * *')
+    }
 
     environment {
-      scannerhome = tool 'Sonar-Scanner'
+      AWS_ACCESS_KEY_ID = credentials('awsAccessKeyId')
+      AWS_SECRET_ACCESS_KEY = credentials('awsSecretAccessKey')
+      AWS_DEFAULT_REGION = 'ap-northeast-2'
+      HOME = '.' // Avoid npm root owned
     }
 
     stages {
@@ -48,8 +44,6 @@ pipeline {
                 }
             }
         }
-
-      
         
         // aws s3 에 파일을 올림
         stage('Deploy Frontend') {
